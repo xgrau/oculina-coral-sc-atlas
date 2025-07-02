@@ -1,0 +1,4 @@
+../data/sequencing/Ocupat01_OPB_10XscRNAseq_exp/
+../data/sequencing/Ocupat02_OPUB_10XscRNAseq_exp/
+../data/sequencing/Ocupat03_Opat02B_10XscRNAseq_exp/
+../data/sequencing/Ocupat04_Opat02U_10XscRNAseq_exp/

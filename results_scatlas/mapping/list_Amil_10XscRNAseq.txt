@@ -1,0 +1,2 @@
+../data/sequencing/Amil01_10XscRNAseq
+../data/sequencing/Amil02_ACM_10XscRNAseq_exp

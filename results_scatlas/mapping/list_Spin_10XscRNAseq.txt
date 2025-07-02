@@ -1,0 +1,1 @@
+../data/sequencing/Spis01_STP_10XscRNAseq_exp

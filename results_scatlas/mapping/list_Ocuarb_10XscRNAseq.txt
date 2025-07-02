@@ -1,0 +1,2 @@
+../data/sequencing/Ocuarb01_sym_SRR29367137
+../data/sequencing/Ocuarb02_apo_SRR29367138
