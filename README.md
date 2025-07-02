@@ -1,4 +1,4 @@
-# Comparative single-cell omic analyses of the stony coral *Oculina patagonica* <!-- omit from toc -->
+# Comparative genomics and single-cell transcriptomics of *Oculina patagonica* <!-- omit from toc -->
 
 - [Introduction](#introduction)
 - [Accessing the data](#accessing-the-data)
@@ -29,21 +29,21 @@
 
 Folder organisation:
 
-* `data/`: reference genomes, sequencing data, scRNA-seq data.
-* `results_scatlas/`: scRNA-seq atlases.
-* `results_annotation/`: genome annotation and comparative analyses.
+- `data/`: reference genomes, sequencing data, scRNA-seq data.
+- `results_scatlas/`: scRNA-seq atlases.
+- `results_annotation/`: genome annotation and comparative analyses.
 
 Each species is referred to with a short acronym all through this project. For the three scleractinian coral single-cell atlases here produced, we use:
 
-* `Ocupat` for *Oculina patagonica*
-* `Amil` for *Acropora millepora*
-* `Spin` for *Stylophora pistillata*
+- `Ocupat` for *Oculina patagonica*
+- `Amil` for *Acropora millepora*
+- `Spin` for *Stylophora pistillata*
 
 We have compared these three corals to other species, namely:
 
-* `Ocuarb` for *Oculina arbuscula*, another scleractinian coral
-* `Xesp` for *Xenia* sp., an octocorallian soft coral
-* `Nvec` for *Nematostella vectensis*, a sea anemone
+- `Ocuarb` for *Oculina arbuscula*, another scleractinian coral
+- `Xesp` for *Xenia* sp., an octocorallian soft coral
+- `Nvec` for *Nematostella vectensis*, a sea anemone
 
 The complete list of species used in the comparative transcriptomic and genomic analyses, with the relevant data sources, can be found [here](data/taxon_sampling.md).
 
@@ -51,10 +51,10 @@ The complete list of species used in the comparative transcriptomic and genomic 
 
 We provide the following [raw data](results_scatlas/mapping/scdb_seurat) for each coral species:
 
-* Seurat objects
-* Metacell annotation tables
-* Cell type annotation tables
-* Footprints
+- Seurat objects
+- Metacell annotation tables
+- Cell type annotation tables
+- Footprints
 
 If you have any queries, feel free to let me know in the [Issues section](https://github.com/xgrau/oculina-coral-sc-atlas/issues).
 
@@ -94,17 +94,17 @@ kat plot density kat_comp_raw-main.mx --x_max 100 --output_type=pdf -o kat_comp_
 
 To launch from the `data/` folder.
 
-* Anthozoa-level orthology database (used for intra-anthozoan comparative analyses):
+- Anthozoa-level orthology database (used for intra-anthozoan comparative analyses):
 
 ```bash
-mkdir -p orthology_Anthozoa/dataset
+mkdir -p orthology_Anthozoa_plus/dataset
 for i in Nvec Scocal Actieq Metsen Dialin Exapal Adig Amil Gfas Fspp Gasp Spis Ocupat Ocuarb Pocdam Xesp Dgig ; do
-gffread reference/${i}_long.annot.gtf -g reference/${i}_gDNA.fasta -y orthology_Anthozoa/dataset/${i}_long.pep.fasta
-bioawk -c fastx '{ n=gsub(/\./, "X", $2) ; print ">"$1"\n"$2 }' orthology_Anthozoa/dataset/${i}_long.pep.fasta > orthology_Anthozoa/dataset/${i}_long.pep.fasta.tmp && mv orthology_Anthozoa/dataset/${i}_long.pep.fasta.tmp orthology_Anthozoa/dataset/${i}.fasta && rm orthology_Anthozoa/dataset/${i}_long.pep.fasta
+gffread reference/${i}_long.annot.gtf -g reference/${i}_gDNA.fasta -y orthology_Anthozoa_plus/dataset/${i}_long.pep.fasta
+bioawk -c fastx '{ n=gsub(/\./, "X", $2) ; print ">"$1"\n"$2 }' orthology_Anthozoa_plus/dataset/${i}_long.pep.fasta > orthology_Anthozoa_plus/dataset/${i}_long.pep.fasta.tmp && mv orthology_Anthozoa_plus/dataset/${i}_long.pep.fasta.tmp orthology_Anthozoa_plus/dataset/${i}.fasta && rm orthology_Anthozoa_plus/dataset/${i}_long.pep.fasta
 done
-ls orthology_Anthozoa/dataset
+ls orthology_Anthozoa_plus/dataset
 # launch broccoli
-cd orthology_Anthozoa/
+cd orthology_Anthozoa_plus/
 bash ../../scripts/qsub_broccoli-ml.sh dataset 6
 
 # run busco for each species
@@ -115,18 +115,18 @@ bash ../scripts/qsub_busco_run.sh reference/${i}_long.pep.fasta ${i} metazoa_odb
 done
 ```
 
-* Metazoa-level orthology database (used to obtain named orthologs for selected anthozoans):
+- Metazoa-level orthology database (used to obtain named orthologs for selected anthozoans):
 
 ```bash
-mkdir -p orthology_Metazoa/dataset
+mkdir -p orthology_Metazoa_plus/dataset
 for i in Nvec Exapal Amil Spis Ocupat Xesp Dgig Hvul Turdoh Chem Aaur Rhoesc Mmus Hsap Bralan Spur Astrub Skow Dmel Pricau Owefus Lgig Tadh Hhon ; do
-gffread ../../genomes/data/${i}_long.annot.gtf -g ../../genomes/data/${i}_gDNA.fasta -y orthology_Metazoa/dataset/${i}_long.pep.fasta
-bioawk -c fastx '{ n=gsub(/\./, "X", $2) ; print ">"$1"\n"$2 }' orthology_Metazoa/dataset/${i}_long.pep.fasta > orthology_Metazoa/dataset/${i}_long.pep.fasta.tmp && mv orthology_Metazoa/dataset/${i}_long.pep.fasta.tmp orthology_Metazoa/dataset/${i}.fasta && rm orthology_Metazoa/dataset/${i}_long.pep.fasta
+gffread ../../genomes/data/${i}_long.annot.gtf -g ../../genomes/data/${i}_gDNA.fasta -y orthology_Metazoa_plus/dataset/${i}_long.pep.fasta
+bioawk -c fastx '{ n=gsub(/\./, "X", $2) ; print ">"$1"\n"$2 }' orthology_Metazoa_plus/dataset/${i}_long.pep.fasta > orthology_Metazoa_plus/dataset/${i}_long.pep.fasta.tmp && mv orthology_Metazoa_plus/dataset/${i}_long.pep.fasta.tmp orthology_Metazoa_plus/dataset/${i}.fasta && rm orthology_Metazoa_plus/dataset/${i}_long.pep.fasta
 done
-ll -h orthology_Metazoa/dataset
-head orthology_Metazoa/dataset/Ocupat.fasta
+ll -h orthology_Metazoa_plus/dataset
+head orthology_Metazoa_plus/dataset/Ocupat.fasta
 # launch broccoli
-cd orthology_Metazoa/
+cd orthology_Metazoa_plus/
 bash ../../scripts/qsub_broccoli-ml.sh dataset 24
 
 # run busco for each species
@@ -137,15 +137,15 @@ bash ../scripts/qsub_busco_run.sh reference/${i}_long.pep.fasta ${i} metazoa_odb
 done
 ```
 
-* Consolidate orthogroups. Beware, this step requires having run dedicated phylogenies to annotate transcription factors (see below: [Gene family annotation](#gene-family-annotation))
+- Consolidate orthogroups. Beware, this step requires having run dedicated phylogenies to annotate transcription factors (see below: [Gene family annotation](#gene-family-annotation))
 
 ```bash
 # consolidate OGs and pairs
 Rscript s01_prepare_orthology_2023-01-20.R
 
 # ancestral reconstruction with Dollo via Possvm
-python ../scripts/possvm_reconstruction.py -tree species_tree.Anthozoa.newick -ort orthology_Anthozoa/orthogroup_conservation.csv -out orthology_Anthozoa/orthogroup_conservation.possvm
-python ../scripts/possvm_reconstruction.py -tree species_tree.Metazoa.newick  -ort orthology_Metazoa/orthogroup_conservation.csv  -out orthology_Metazoa/orthogroup_conservation.possvm
+python ../scripts/possvm_reconstruction.py -tree species_tree.Anthozoa.newick -ort orthology_Anthozoa_plus/orthogroup_conservation.csv -out orthology_Anthozoa_plus/orthogroup_conservation.possvm
+python ../scripts/possvm_reconstruction.py -tree species_tree.Metazoa.newick  -ort orthology_Metazoa_plus/orthogroup_conservation.csv  -out orthology_Metazoa_plus/orthogroup_conservation.possvm
 # with Ocuarb:
 python ../scripts/possvm_reconstruction.py -tree species_tree.Anthozoa_plus.newick -ort orthology_Anthozoa_plus/orthogroup_conservation.csv -out orthology_Anthozoa_plus/orthogroup_conservation.possvm
 python ../scripts/possvm_reconstruction.py -tree species_tree.Metazoa_plus.newick -ort orthology_Metazoa_plus/orthogroup_conservation.csv -out orthology_Metazoa_plus/orthogroup_conservation.possvm
@@ -155,12 +155,12 @@ python ../scripts/possvm_reconstruction.py -tree species_tree.Metazoa_plus.newic
 
 To run from the `results_annotation` subfolder.
 
-* Launch phylogenies
+- Launch phylogenies
 
 ```bash
 # concatenate fasta
 mkdir -p data
-cat ../data/orthology_Metazoa/dataset/*.fasta > data/seq_Metazoa_2024-05-14.fasta
+cat ../data/orthology_Metazoa_plus/dataset/*.fasta > data/seq_Metazoa_2024-05-14.fasta
 esl-sfetch --index data/seq_Metazoa_2024-05-14.fasta
 
 # First, launch dedicated phylogenies
@@ -186,7 +186,7 @@ done
 done
 ```
 
-* Gene lists based on Pfam domain presence (comprehensive and species-specific, they don't depend on gene trees):
+- Gene lists based on Pfam domain presence (comprehensive and species-specific, they don't depend on gene trees):
 
 ```bash
 mkdir -p results_gene_lists
@@ -205,7 +205,7 @@ done
 done
 ```
 
-* Gene lists for signal peptides, transmembrane domains and, by inference, secreted proteins:
+- Gene lists for signal peptides, transmembrane domains and, by inference, secreted proteins:
 
 ```bash
 # transmembrane domains
@@ -225,7 +225,7 @@ comm -23 <(sort results_gene_lists/${i}_list_transcripts.with_signalpept.txt) <(
 done
 ```
 
-* Gene lists for ribosomal proteins and histones
+- Gene lists for ribosomal proteins and histones
 
 ```bash
 # ribosomal
@@ -244,7 +244,7 @@ done
 
 From `data` folder:
 
-* Download Mus data from MIG:
+- Download Mus data from MIG:
 
 ```bash
 # download GOs for mous from MIG database and GO database, 2022-11-03 release
@@ -259,7 +259,7 @@ grep -v "^!" reference/Mmus_MGI.gaf | awk '{ print $2,$5 }' | sort -u | awk '{ i
 awk 'NR==FNR { l[$1]=$2;next} { for(i = 1; i <= NF; i++) { if ($i in l) $i=l[$i] ; } } { print $0 }' reference/Mmus_MRK_Sequence_ID_mapping.dict_long.txt reference/Mmus_MGI.gaf.csv | grep "^Mmus_" | tr ' ' '\t' > reference/Mmus_ensembl.GO.csv
 ```
 
-* Map to species of interest using fine-grained orthologs:
+- Map to species of interest using fine-grained orthologs:
 
 ```bash
 Rscript s02_match_GOs_to_Mus_2023-08-22.R
@@ -271,7 +271,7 @@ Obtain a species trees by selecting single-copy orthologs directly from Broccoli
 
 To run from the `data` folder.
 
-* All Anthozoa:
+- All Anthozoa:
 
 ```bash
 # species to include
@@ -317,7 +317,7 @@ bioawk -c fastx '{ print $1,length($2)} ' orthology_Anthozoa_plus/phylogenomics_
 iqtree -s orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta -m TEST -mset LG -nt 4 -alrt 1000 -bb 1000 -pre orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.iqt -wsr -wbt
 ```
 
-* Species with available single-cell atlases:
+- Species with available single-cell atlases:
 
 ```bash
 # species to include
@@ -367,7 +367,7 @@ iqtree -s orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta -m TEST -m
 
 From `results_annotation`:
 
-* Using Count:
+- Using Count:
 
 ```bash
 mkdir -p results_gene_family_evolution_anthozoa
@@ -392,7 +392,7 @@ java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML 
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 1000 -gain_k 2 -loss_k 2 -transfer_k 2 -length_k 2 -duplication_k 2 -uniform_duplication false -v true ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.train.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G1.txt > results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G2.txt
 ```
 
-* Run posterior probability analysis:
+- Run posterior probability analysis:
 
 ```bash
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/orthogroup_counts.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G0.txt  > results_gene_family_evolution_anthozoa/orthogroup_counts.posteriors.G0.csv
@@ -406,14 +406,14 @@ java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Pos
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/orthogroup_counts.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G2.txt  > results_gene_family_evolution_anthozoa_plus/orthogroup_counts.posteriors.G2.csv
 ```
 
-* Parse gains/losses/expansions, and create tables of gene ages for each reference species:
+- Parse gains/losses/expansions, and create tables of gene ages for each reference species:
 
 ```bash
 Rscript s41_ancestral_reconstruction_posterior_analysis_2024-06-12.R
 Rscript s43_ancestral_gain_loss_Dollo_2022-11-14.R # same, but with dollo (mostly consistent)
 ```
 
-* Parse gains and expansions per node, compute functional enrichments for specific nodes and along ancestral paths (note: excludes Hexacorallia node for scleractinians):
+- Parse gains and expansions per node, compute functional enrichments for specific nodes and along ancestral paths (note: excludes Hexacorallia node for scleractinians):
 
 ```bash
 Rscript s42_ancestral_reconstruction_posterior_enrichments_2024-06-14.R
@@ -425,13 +425,13 @@ Analyse the presence of tandem duplications in extant anthozoan genomes.
 
 To run from `results_annotation`.
 
-* Identify sets of extant tandem duplications based on ancestrally single-copy families at various ancestral nodes (Anthozoa, Hexacorallia, Scleractinia):
+- Identify sets of extant tandem duplications based on ancestrally single-copy families at various ancestral nodes (Anthozoa, Hexacorallia, Scleractinia):
 
 ```bash
 Rscript s44_segmental_duplications_from_ancestor_2024-07-04.R
 ```
 
-* Explore expression profile of segmentally duplicated families (only for species for which we have single-cell atlases; see below: [Single-cell transcriptome analysis](#single-cell-transcriptome-analysis)).
+- Explore expression profile of segmentally duplicated families (only for species for which we have single-cell atlases; see below: [Single-cell transcriptomic atlas analyses](#single-cell-transcriptomic-atlas-analyses)).
 
 ```bash
 Rscript s45_segmental_duplications_expression_2024-07-05.R
@@ -443,20 +443,20 @@ Analyse patterns of microsynteny (gene pair collinearity) across anthozoan genom
 
 To run from `results_annotation`.
 
-* Microsynteny conservation (pairs of syntenic genes):
+- Microsynteny conservation (pairs of syntenic genes):
 
 ```bash
 Rscript s30_synteny_pairs_2024-05-27.R\
 Rscript s31_synteny_pairs_distance_2024-05-27.R
 ```
 
-* Synteny conservation in chromosomes (one-to-one ortholog placement across homolgous chromosomes):
+- Synteny conservation in chromosomes (one-to-one ortholog placement across homolgous chromosomes):
 
 ```bash
 Rscript s32_synteny_pairwise_2024-05-30.R
 ```
 
-* Explore expression profile of microsyntenic gene pairs (only for species for which we have single-cell atlases; see below: [Single-cell transcriptome analysis](#single-cell-transcriptome-analysis)).
+- Explore expression profile of microsyntenic gene pairs (only for species for which we have single-cell atlases; see below: [Single-cell transcriptomic atlas analyses](#single-cell-transcriptomic-atlas-analyses)).
 
 ```bash
 Rscript s34_synteny_expression_2024-08-05.R
@@ -468,7 +468,7 @@ Analyse patterns of macrosynteny, i.e. the evolution of ancestral linkage groups
 
 To run from `results_annotation`.
 
-* Ancestral linkeage group analysis:
+- Ancestral linkeage group analysis:
 
 ```bash
 # 1. Align all-to-all, all species of interest:
@@ -514,7 +514,7 @@ Create whole-genome alignments using [Cactus](https://github.com/ComparativeGeno
 
 To run from `results_annotation`.
 
-* Cactus alignments:
+- Cactus alignments:
 
 ```bash
 mkdir -p results_wga
@@ -538,7 +538,7 @@ done < <(bioawk -c fastx 'length($2) > 1e6 { print $1 }' ../data/reference/${s}_
 
 ```
 
-* Parse Cactus alignments:
+- Parse Cactus alignments:
 
 ```bash
 # Pairs of homologous chromosomes
@@ -560,7 +560,7 @@ Test for whole-genome duplications using paralog Ks distributions, using [`ksrat
 
 To run from `results_annotation`.
 
-* Launch `ksrates`:
+- Launch `ksrates`:
 
 ```bash
 mkdir -p results_wgd
@@ -579,13 +579,13 @@ done
 
 #### Transposon complement analysis
 
-* TE annotation using EDTA
+- TE annotation using EDTA
 
 ```bash
 ## TODO
 ```
 
-* List types of elements and extract types per species, and align to self:
+- List types of elements and extract types per species, and align to self:
 
 ```bash
 # alternative, aligning to consensus
@@ -607,7 +607,7 @@ done < <(cut -f1 results_repeat_analysis_plus/te_complement_${i}/repeat_counts.t
 done 
 ```
 
-* Calculate Kimura distance from alignments, plot distributions:
+- Calculate Kimura distance from alignments, plot distributions:
 
 ```bash
 Rscript s51_kimura_from_tes_2024-11-20.R
@@ -619,7 +619,7 @@ All the following commands and scripts are to be run from the `results_scatlas` 
 
 #### Mapping scRNAseq to corals
 
-Using Cellranger `vXX`.
+Using Cellranger 6.1.1.
 
 ```bash
 ## TODO
@@ -629,7 +629,7 @@ Using Cellranger `vXX`.
 
 The following scripts describe the process of cell clustering and cell type annotation for each species (`Ocupat`, `Spin`, `Amil`; and also the outgroups `Xesp`, `Ocuarb` and `Nvec`). For each species, results are organised a preliminary folder (denoted as `results_metacell_[SPSID]_prefilt/`) and a final, filtered folder (denoted as `results_metacell_[SPSID]_filt/`).
 
-* Initialise clustering solution with a first iteration (`*prefilt/`):
+- Initialise clustering solution with a first iteration (`*prefilt/`):
 
 ```bash
 # normalise data for marker selection based on the SCT procedure
@@ -640,27 +640,27 @@ Rscript s03_seurat_cells_normalise_2024-04-17-Outgroups.R # for Xesp and Nvec
 Rscript s04_seurat_cells_process_2024-04-17.R
 ```
 
-* Annotate and reorder clusters from the first iteration manually, and save an annotation file for this second iteration to `*filt/`.
+- Annotate and reorder clusters from the first iteration manually, and save an annotation file for this second iteration to `*filt/`.
 
-* Analyse the atlas after manual curation of clusters (markers per cell type, enrichments, cytotrace, etc); goes to `filt/` folders:
+- Analyse the atlas after manual curation of clusters (markers per cell type, enrichments, cytotrace, etc); goes to `filt/` folders:
 
 ```bash
 Rscript s06_cluster_postfilter_2024-04-18.R
 ```
 
-* Differential gene expression analyses between pairs of cell types (selected):
+- Differential gene expression analyses between pairs of cell types (selected):
 
 ```bash
 Rscript s07_dge_analyses_2024-01-29.R
 ```
 
-* TF combinations defining each cell type:
+- TF combinations defining each cell type:
 
 ```bash
 Rscript s13_TF_combinations_2024-05-09.R
 ```
 
-* Identify gene modules, annotate them and compare their contents across species, using `WGCNA` at the metacell level:
+- Identify gene modules, annotate them and compare their contents across species, using `WGCNA` at the metacell level:
 
 ```bash
 # create gene modules per species
@@ -673,14 +673,14 @@ Rscript s22_gene_modules_comparisons_2024-06-05.R
 Rscript s23_gene_modules_host_cells_2024-06-10.R
 ```
 
-* Assign transcriptomes from FACS-sorted symbiont-positive cells to cell types in the reference datasets.
+- Assign transcriptomes from FACS-sorted symbiont-positive cells to cell types in the reference datasets.
 
 ```bash
 Rscript s30_transfer_alga_positive_cells_symbionts_2024-06-26.R # based on MARS experiments
 Rscript s31_metacell_symbiont_counts_2024-05-09.R # based on 10x data
 ```
 
-* Evolution of cell type-specific gene expression programmes:
+- Evolution of cell type-specific gene expression programmes:
 
 ```bash
 # prepare possvm-style list of markers (OGs) per cell type
@@ -708,14 +708,14 @@ Compare cell types across species in various ways.
 
 To run from `results_scatlas/` folder.
 
-* Cross-species similarity of cell types based on ICC best-gene pairs and weighted pearson correlation:
+- Cross-species similarity of cell types based on ICC best-gene pairs and weighted pearson correlation:
 
 ```bash
 Rscript s08_csps_icc_calculation_2024-04-26.R # find best gene pairs between species using ICC
 Rscript s09_csps_similarity_2024-04-29.R      # csps similarity plots and shared genes
 ```
 
-* Build cell type trees (i.e. hierarchical clustering of cell types) and identify node-specific markers.
+- Build cell type trees (i.e. hierarchical clustering of cell types) and identify node-specific markers.
 
 ```bash
 Rscript s10_cell_type_trees_2024-06-21.R      # cell type trees (UPGMA, PCA-based...)
@@ -725,7 +725,7 @@ Rscript s10_cell_type_trees_2024-06-21.R      # cell type trees (UPGMA, PCA-base
 
 To run from `results_csps/` folder.
 
-* Create blast databases for SAMap:
+- Create blast databases for SAMap:
 
 ```bash
 # blast dbs
@@ -741,7 +741,7 @@ for sj in Ocupat Ocuarb Spis Amil Nvec Xesp ; do
 bash qsub_blast.sh results_blast/dbs/${si}.fasta results_blast/dbs/${sj}.fasta  results_blast/samap.${si}-${sj}.blast.csv blastp
 done
 done
-
+# copy in samap format
 for si in Ocupat Ocuarb Spis Amil Nvec Xesp ; do
 for sj in Ocupat Ocuarb Spis Amil Nvec Xesp ; do
 mkdir -p results_samap/blasts/${si}${sj}
@@ -750,7 +750,7 @@ cp results_blast/samap.${sj}-${si}.blast.csv results_samap/blasts/${si}${sj}/${s
 done
 done
 
-# modify blast outputs to fit Spio/Spin...
+# modify blast outputs to fit Spin casuistics (species id for Stylophora pistillata is Spis but dataset id is Spin)
 for si in Spin ; do
 for sj in Ocupat Ocuarb Amil Nvec Xesp ; do
 mkdir -p results_samap/blasts/${si}${sj}
@@ -758,7 +758,6 @@ cp results_blast/samap.Spis-${sj}.blast.csv results_samap/blasts/${si}${sj}/${sj
 cp results_blast/samap.${sj}-Spis.blast.csv results_samap/blasts/${si}${sj}/${si}_to_${sj}.txt
 done
 done
-
 for si in Ocupat Ocuarb Amil Nvec Xesp ; do
 for sj in Spin ; do
 mkdir -p results_samap/blasts/${si}${sj}
@@ -768,30 +767,27 @@ done
 done
 ```
 
-* Prepare SAMap matrices from Seurat objects:
+- Prepare SAMap matrices from Seurat objects:
 
 ```bash
 conda activate base
 Rscript s30_objects_from_seurat_2024-07-02.R
 ```
 
-* Initialise single-species SAM objects:
+- Initialise single-species SAM objects:
 
 ```bash
 conda activate samap
 python s31_samap_prepare_SAM_2023-03-20.py
 ```
 
-* Cross-species analyses using SAMap:
+- Cross-species analyses using SAMap:
 
 ```bash
 # aligment, all-to-all (various combinations)
 conda activate samap
 python s35_samap_objects_all2all_2024-07-03.py
 python s36_samap_postalignment_all2all_2024-07-03.py
-conda activate base
-Rscript s37_samap_plots_all2all_2024-07-03.R # heatmaps and pairwise igraphs
-
 ```
 
 The end!
