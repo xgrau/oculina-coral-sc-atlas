@@ -520,20 +520,20 @@ To run from `results_annotation`.
 mkdir -p results_wga
 
 # 1. Index, scleractinian corals with chromosomal genomes and oculina relatives
-cat ../data/species_tree.Scleractinia2.newick > results_wga/index_cactus.Scleractinia2.txt
+cat ../data/species_tree.Scleractinia_plus.newick > results_wga/index_cactus.Scleractinia_plus.txt
 for i in Ocupat Ocuarb Fspp Gasp Pocver Spis Amil Acrpal Acrcer Porlut ; do
-echo -e "${i}\t../data/reference/${i}_gDNA.fasta" >> results_wga/index_cactus.Scleractinia2.txt
+echo -e "${i}\t../data/reference/${i}_gDNA.fasta" >> results_wga/index_cactus.Scleractinia_plus.txt
 done
 
 # 2. Run cactus for scleractinian corals:
 source ~/Programes/cactus-bin-v2.9.7/venv-cactus-v2.9.7/bin/activate
-cactus results_wga/results_wga_cactus2 results_wga/index_cactus.Scleractinia2.txt results_wga/cactus_Scleractinia2.hal
+cactus results_wga/results_wga_cactus2 results_wga/index_cactus.Scleractinia_plus.txt results_wga/cactus_Scleractinia_plus.hal
 
 # 3. Format conversion: hal to MAF
 mkdir -p results_wga/results_alignments/
 s="Ocuarb"
 while read c ; do
-hal2maf --refSequence ${c} --refGenome ${s} results_wga/cactus_Scleractinia2.hal results_wga/results_alignments_plus/cactus.${s}.${c}.maf
+hal2maf --refSequence ${c} --refGenome ${s} results_wga/cactus_Scleractinia_plus.hal results_wga/results_alignments_plus/cactus.${s}.${c}.maf
 done < <(bioawk -c fastx 'length($2) > 1e6 { print $1 }' ../data/reference/${s}_gDNA.fasta)
 
 ```
