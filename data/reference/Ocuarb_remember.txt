@@ -1,0 +1,10 @@
+species            Ocuarb
+annotation_source  raw_data/Ocuarb_v01/Ocuarb_v01_all.annot.renamed.gtf
+genome_source      raw_data/Ocuarb_v01/Ocuarb_v01_gDNA.fasta
+n_protein_genes    34496
+n_protein_isoforms 42183
+annotation_md5sum  4a24e0daae4074ea3bbdd03111e63e79  data/Ocuarb_long.annot.gtf
+genome_md5sum      eb2af0fa39776b61ab9ed4b58d0db8b5  data/Ocuarb_gDNA.fasta
+longpep_md5sum     ac76abd4bcef9f38170ff88a1802a54a  data/Ocuarb_long.pep.fasta
+longcds_md5sum     29027de4977dd7491e1074c02e5fb8b8  data/Ocuarb_long.cds.fasta
+time               2025-04-03 14:37:17

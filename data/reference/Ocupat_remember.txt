@@ -1,0 +1,10 @@
+species            Ocupat
+annotation_source  raw_data/Ocupat_v02/Ocupat_v02_all.annot.renamed.gtf
+genome_source      raw_data/Ocupat_v02/Ocupat_v02_gDNA.fasta
+n_protein_genes    39482
+n_protein_isoforms 50798
+annotation_md5sum  0ca8aac2e85ce1129565f543b6e7c4ea  data//Ocupat_long.annot.gtf
+genome_md5sum      219c159f39e6852662223654054b967c  data//Ocupat_gDNA.fasta
+longpep_md5sum     5d82b77ebc59564bc1edf9d6e00f144b  data//Ocupat_long.pep.fasta
+longcds_md5sum     d0883a6797ee00980eb8f2523105ae51  data//Ocupat_long.cds.fasta
+time               2024-05-29 22:36:40
