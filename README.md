@@ -22,7 +22,7 @@
 		- [Mapping scRNAseq to corals](#mapping-scrnaseq-to-corals)
 		- [Cluster and annotate scRNAseq atlases](#cluster-and-annotate-scrnaseq-atlases)
 	- [Cross-species single-cell transcriptome analyses](#cross-species-single-cell-transcriptome-analyses)
-		- [Cell type trees across species](#cell-type-trees-across-species)
+		- [Cell type trees across species, using ICC orthologs](#cell-type-trees-across-species-using-icc-orthologs)
 		- [Use SAMap to align cell types across species](#use-samap-to-align-cell-types-across-species)
 
 ## Introduction
@@ -464,11 +464,7 @@ Rscript s34_synteny_expression_2024-08-05.R
 
 #### Macrosynteny analyses
 
-Analyse patterns of macrosynteny, i.e. the evolution of ancestral linkage groups of genes (ALGs) in extant genomes.
-
-To run from `results_annotation`.
-
-- Ancestral linkeage group analysis:
+Analyse patterns of macrosynteny, i.e. the evolution of ancestral linkage groups of genes (ALGs) in extant genomes. This analysis is geared towards identifying ALGs at the Cnidaria level (shared between Xenia sp, Rhopilema esculentum and Hydra vulgaris) and score their conservation in our ingroup of interest (Scleractinia). To be run from `results_annotation`.
 
 ```bash
 # 1. Align all-to-all, all species of interest:
@@ -506,6 +502,9 @@ Rscript s62_score_ALG_2022-06-03.R
 
 # 6. Match species chrs, pairwise
 Rscript s63_pairwise_species_2022-06-08.R
+
+# 7. Create cord plots between best pairs of chromosomes of species i and j
+Rscript s64_chord_plots_ALG_2024-11-13.R
 ```
 
 #### Whole-genome alignment and conservation
@@ -702,9 +701,9 @@ Rscript s51_clean_ct_evol_process_dollo_2024-10-24.R
 
 ### Cross-species single-cell transcriptome analyses
 
-Compare cell types across species in various ways.
+Compare cell types across species.
 
-#### Cell type trees across species
+#### Cell type trees across species, using ICC orthologs
 
 To run from `results_scatlas/` folder.
 
