@@ -1,0 +1,6 @@
+results_scatlas/results_metacell_Nvec_filt/*.rds filter=lfs diff=lfs merge=lfs -text
+results_scatlas/results_metacell_Ocuarb_filt/*.rds filter=lfs diff=lfs merge=lfs -text
+results_scatlas/results_metacell_Ocupat_filt/*.rds filter=lfs diff=lfs merge=lfs -text
+results_scatlas/results_metacell_Spin_filt/*.rds filter=lfs diff=lfs merge=lfs -text
+results_scatlas/results_metacell_Xesp_filt/*.rds filter=lfs diff=lfs merge=lfs -text
+results_scatlas/results_metacell_Amil_filt/*.rds filter=lfs diff=lfs merge=lfs -text
