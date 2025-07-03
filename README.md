@@ -10,7 +10,6 @@
 		- [Orthology analyses](#orthology-analyses)
 		- [Gene family annotation](#gene-family-annotation)
 		- [Gene ontology mappings](#gene-ontology-mappings)
-		- [Species tree of anthozoans](#species-tree-of-anthozoans)
 		- [Evolution of gene family gain/loss/expansion](#evolution-of-gene-family-gainlossexpansion)
 		- [Analysis of tandem duplications](#analysis-of-tandem-duplications)
 		- [Microsynteny analyses](#microsynteny-analyses)
@@ -265,103 +264,6 @@ awk 'NR==FNR { l[$1]=$2;next} { for(i = 1; i <= NF; i++) { if ($i in l) $i=l[$i]
 Rscript s02_match_GOs_to_Mus_2023-08-22.R
 ```
 
-#### Species tree of anthozoans
-
-Obtain a species trees by selecting single-copy orthologs directly from Broccoli. This is simply used to assign branch lengths to the known species tree of Anthozoa. Thus, we are not terribly concerned about phylogenetic marker selection.
-
-To run from the `data` folder.
-
-- All Anthozoa:
-
-```bash
-# species to include
-spslist="Nvec Scocal Actieq Metsen Dialin Exapal Adig Amil Gfas Fspp Gasp Spis Ocupat Ocuarb Pocdam Xesp Dgig"
-spsliststring="^Nvec\|^Scocal\|^Actieq\|^Metsen\|^Dialin\|^Exapal\|^Adig\|^Amil\|^Gfas\|^Fspp\|^Gasp\|^Spis\|^Ocupat\|^Ocuarb\|^Pocdam\|^Xesp\|^Dgig"
-# dataset id
-dcod="allanthozoa01"
-
-# create output folder
-mkdir -p orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments
-
-# input data
-for s in ${spslist} ; do
-cat reference/${s}_long.pep.fasta 
-done > orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta
-esl-sfetch --index orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta
-
-# get single-copy ogs
-csvtool -t TAB -u TAB namedcol orthogroup,$(echo ${spslist} | tr ' ' ',') <(awk 'BEGIN {OFS="\t" } {if (NR==1) {$1="orthogroup"} } { print }' orthology_Anthozoa_plus/orthogroup_conservation.possvm.dollo_pres.csv) | awk '{for(i=2;i<=NF;i++){if($i == 1 && $(i-1)==$i){count++}};if((NF-2)==count){print};count=""}' | cut -f1 | head -n 200 > orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt
-fgrep -f orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt <(awk 'BEGIN {OFS="\t" } {if (NR==1) {$1="orthogroup"} } { print }' orthology_Anthozoa_plus/orthogroup_conservation.possvm.dollo_pres.csv) > orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.csv
-
-# get seqs and align
-while read og ; do
-ogs=$(echo $og | sed "s/://")
-grep -w ${og} orthology_Anthozoa_plus/orthogroup_conservation.csv | cut -f4 | grep ${spsliststring} - > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.txt
-esl-sfetch -f orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.txt > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.fasta
-mafft --localpair --thread 8 --reorder --maxiterate 1000 orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.fasta > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.l.fasta
-clipkit orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.l.fasta -m kpic-gappy -o orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.lt.fasta -g 0.7
-done < orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt
-
-# concatenate
-for s in ${spslist} ; do
-echo ">${s}"
-while read og ; do
-ogs=$(echo $og | sed "s/://")
-bioawk -c fastx '{ print $1,$2 }' orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.lt.fasta | grep "^${s}_" | head -n1 | cut -f2
-done < orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt #| tr -d '\n'
-echo ""
-done > orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta
-bioawk -c fastx '{ print $1,length($2)} ' orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta
-
-# tree
-iqtree -s orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta -m TEST -mset LG -nt 4 -alrt 1000 -bb 1000 -pre orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.iqt -wsr -wbt
-```
-
-- Species with available single-cell atlases:
-
-```bash
-# species to include
-spslist="Ocupat Ocuarb Spis Amil Nvec Xesp"
-spsliststring="^Ocupat\|^Ocuarb\|^Spis\|^Amil\|^Nvec\|^Xesp"
-# dataset id
-dcod="shortanthozoa01"
-
-# create output folder
-mkdir -p orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments
-
-# input data
-for s in ${spslist} ; do
-cat reference/${s}_long.pep.fasta 
-done > orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta
-esl-sfetch --index orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta
-
-# get single-copy ogs
-csvtool -t TAB -u TAB namedcol orthogroup,$(echo ${spslist} | tr ' ' ',') <(awk 'BEGIN {OFS="\t" } {if (NR==1) {$1="orthogroup"} } { print }' orthology_Anthozoa_plus/orthogroup_conservation.possvm.dollo_pres.csv) | awk '{for(i=2;i<=NF;i++){if($i == 1 && $(i-1)==$i){count++}};if((NF-2)==count){print};count=""}' | cut -f1 | head -n 200 > orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt
-fgrep -f orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt <(awk 'BEGIN {OFS="\t" } {if (NR==1) {$1="orthogroup"} } { print }' orthology_Anthozoa_plus/orthogroup_conservation.possvm.dollo_pres.csv) > orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.csv
-
-# get seqs and align
-while read og ; do
-ogs=$(echo $og | sed "s/://")
-grep -w ${og} orthology_Anthozoa_plus/orthogroup_conservation.csv | cut -f4 | grep ${spsliststring} - > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.txt
-esl-sfetch -f orthology_Anthozoa_plus/phylogenomics_${dcod}/tmp.fasta orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.txt > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.fasta
-mafft --localpair --thread 8 --reorder --maxiterate 1000 orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.fasta > orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.l.fasta
-clipkit orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.l.fasta -m kpic-gappy -o orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.lt.fasta -g 0.7
-done < orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt
-
-# concatenate
-for s in ${spslist} ; do
-echo ">${s}"
-while read og ; do
-ogs=$(echo $og | sed "s/://")
-bioawk -c fastx '{ print $1,$2 }' orthology_Anthozoa_plus/phylogenomics_${dcod}/alignments/${ogs}.lt.fasta | grep "^${s}_" | head -n1 | cut -f2
-done < orthology_Anthozoa_plus/phylogenomics_${dcod}/single_copy_orthologs.txt #| tr -d '\n'
-echo ""
-done > orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta
-bioawk -c fastx '{ print $1,length($2)} ' orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta
-
-# tree
-iqtree -s orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.fasta -m TEST -mset LG -nt 4 -alrt 1000 -bb 1000 -pre orthology_Anthozoa_plus/phylogenomics_${dcod}/dataset.iqt -wsr -wbt
-```
 
 #### Evolution of gene family gain/loss/expansion
 
@@ -377,15 +279,6 @@ Rscript s40_ancestral_reconstruction_prepare_dataset_2024-06-12.R
 
 # Train with gamma categories for gain, loss, length and transfer (transfer seems important because it emulates capture errors)
 # start without gamma cats
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 100 -uniform_duplication true -v true ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/pfam_domain_counts.train.csv > results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G0.txt
-# add one gamma cat to the gain, loss, transfer, length and duplication parameters; and then iteratively expand to 2 and then 4
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 1000 -gain_k 1 -loss_k 1 -transfer_k 1 -length_k 1 -duplication_k 1 -uniform_duplication false -v true ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/pfam_domain_counts.train.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G0.txt > results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G1.txt
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 1000 -gain_k 2 -loss_k 2 -transfer_k 2 -length_k 2 -duplication_k 2 -uniform_duplication false -v true ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/pfam_domain_counts.train.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G1.txt > results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G2.txt
-# java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 1000 -gain_k 4 -loss_k 4 -transfer_k 4 -length_k 4 -duplication_k 4 -uniform_duplication false -v true ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/pfam_domain_counts.train.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G2.txt > results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G4.txt
-
-## Same, but adding Ocuarb
-# Train with gamma categories for gain, loss, length and transfer (transfer seems important because it emulates capture errors)
-# start without gamma cats
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 100 -uniform_duplication true -v true ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.train.csv > results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G0.txt
 # add one gamma cat to the gain, loss, transfer, length and duplication parameters; and then iteratively expand to 2 and then 4
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML -opt_rounds 100 -opt_delta 0.01 -max_paralogs 1000 -gain_k 1 -loss_k 1 -transfer_k 1 -length_k 1 -duplication_k 1 -uniform_duplication false -v true ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.train.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G0.txt > results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G1.txt
@@ -395,12 +288,6 @@ java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.ML 
 - Run posterior probability analysis:
 
 ```bash
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/orthogroup_counts.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G0.txt  > results_gene_family_evolution_anthozoa/orthogroup_counts.posteriors.G0.csv
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/orthogroup_counts.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G1.txt  > results_gene_family_evolution_anthozoa/orthogroup_counts.posteriors.G1.csv
-java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/orthogroup_counts.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G2.txt  > results_gene_family_evolution_anthozoa/orthogroup_counts.posteriors.G2.csv
-# java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa.newick results_gene_family_evolution_anthozoa/orthogroup_counts.csv results_gene_family_evolution_anthozoa/pfam_domain_counts.rates.G4.txt  > results_gene_family_evolution_anthozoa/orthogroup_counts.posteriors.G4.csv
-
-## Same, but adding Ocuarb
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/orthogroup_counts.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G0.txt  > results_gene_family_evolution_anthozoa_plus/orthogroup_counts.posteriors.G0.csv
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/orthogroup_counts.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G1.txt  > results_gene_family_evolution_anthozoa_plus/orthogroup_counts.posteriors.G1.csv
 java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Posteriors -max_paralogs 10000 ../data/species_tree.Anthozoa_plus.newick results_gene_family_evolution_anthozoa_plus/orthogroup_counts.csv results_gene_family_evolution_anthozoa_plus/pfam_domain_counts.rates.G2.txt  > results_gene_family_evolution_anthozoa_plus/orthogroup_counts.posteriors.G2.csv
@@ -410,22 +297,13 @@ java -cp ~/Programes/Count/Count.jar  ca.umontreal.iro.evolution.genecontent.Pos
 
 ```bash
 Rscript s41_ancestral_reconstruction_posterior_analysis_2024-06-12.R
-Rscript s43_ancestral_gain_loss_Dollo_2022-11-14.R # same, but with dollo (mostly consistent)
-```
-
-- Parse gains and expansions per node, compute functional enrichments for specific nodes and along ancestral paths (note: excludes Hexacorallia node for scleractinians):
-
-```bash
-Rscript s42_ancestral_reconstruction_posterior_enrichments_2024-06-14.R
 ```
 
 #### Analysis of tandem duplications
 
-Analyse the presence of tandem duplications in extant anthozoan genomes.
+Analyse the presence of tandem duplications in extant anthozoan genomes, based on the presence of ancestrally-single copy families. To run from `results_annotation`.
 
-To run from `results_annotation`.
-
-- Identify sets of extant tandem duplications based on ancestrally single-copy families at various ancestral nodes (Anthozoa, Hexacorallia, Scleractinia):
+- Identify sets of extant tandem duplications based on ancestrally single-copy families at the Scleractinia ancestral node:
 
 ```bash
 Rscript s44_segmental_duplications_from_ancestor_2024-07-04.R
@@ -435,6 +313,13 @@ Rscript s44_segmental_duplications_from_ancestor_2024-07-04.R
 
 ```bash
 Rscript s45_segmental_duplications_expression_2024-07-05.R
+```
+
+- Calculate and plot Ka/Ks distributions:
+
+```bash
+Rscript s46_segmental_duplications_kaks_2024-11-12.R
+Rscript s47_segmental_duplications_kaks_plots_2024-12-02.R
 ```
 
 #### Microsynteny analyses
@@ -492,26 +377,24 @@ mcl results_macrosynteny_plus/mcl.all.abc.csv --abc -I 2.1 -o results_macrosynte
 awk '{ { for(i = 1; i <= NF; i++) { printf("HG%06d\t%s\n", NR,$i) } } }' results_macrosynteny_plus/mcl.all.out.csv > results_macrosynteny_plus/mcl.all.out.txt
 
 # 3. Match orthologroups to running windows of genes along each chromosome:
-Rscript s60_define_regions_2022-05-30-whole.R
+Rscript s60_macrosynteny_define_regions_2022-05-30-whole.R
 
 # 4. Define ancestral linkage groups based on homology to three reference species:
-Rscript s61_find_ALG_2022-06-03.R
+Rscript s61_macrosynteny_find_ALG_2022-06-03.R
 
 # 5. Score ancestral linkage groups in each species:
-Rscript s62_score_ALG_2022-06-03.R
+Rscript s62_macrosynteny_score_ALG_2022-06-03.R
 
 # 6. Match species chrs, pairwise
-Rscript s63_pairwise_species_2022-06-08.R
+Rscript s63_macrosynteny_pairwise_species_2022-06-08.R
 
 # 7. Create cord plots between best pairs of chromosomes of species i and j
-Rscript s64_chord_plots_ALG_2024-11-13.R
+Rscript s64_macrosynteny_chord_plots_ALG_2024-11-13.R
 ```
 
 #### Whole-genome alignment and conservation
 
-Create whole-genome alignments using [Cactus](https://github.com/ComparativeGenomicsToolkit/cactus) and parse them to calculate Phastcons and PhyloP scores using [RPHAST](https://github.com/CshlSiepelLab/RPHAST).
-
-To run from `results_annotation`.
+Create whole-genome alignments using [Cactus](https://github.com/ComparativeGenomicsToolkit/cactus) and parse them to calculate Phastcons and PhyloP scores using [RPHAST](https://github.com/CshlSiepelLab/RPHAST). To run from `results_annotation`.
 
 - Cactus alignments:
 
@@ -548,16 +431,11 @@ Rscript s71_phastcons_2023-07-07.R
 
 # Identify conservation and acceleration/conservation scores with `phastCons` and `phyloP`:
 Rscript s72_phastcons_run_2023-07-18.R
-
-# Identify conservation (presence) as percent identity across species, from MAF alignments
-Rscript s73_cactus_parse_2023-07-18.R
 ```
 
 #### Ks rate analysis of whole-genome duplications
 
-Test for whole-genome duplications using paralog Ks distributions, using [`ksrates`](https://ksrates.readthedocs.io/). 
-
-To run from `results_annotation`.
+Test for whole-genome duplications using paralog Ks distributions, using [`ksrates`](https://ksrates.readthedocs.io/). To run from `results_annotation`.
 
 - Launch `ksrates`:
 
@@ -572,38 +450,36 @@ for i in Nvec Scocal Actieq Metsen Dialin Exapal Adig Amil Gfas Fspp Gasp Spis O
 cp ../../data/reference/${i}_long.cds.fasta .
 done
 ~/Programes/ksrates/nextflow run VIB-PSB/ksrates --config config_ksrates.Oculina.txt
-~/Programes/ksrates/nextflow run VIB-PSB/ksrates --config config_ksrates.Acropora.txt
-~/Programes/ksrates/nextflow run VIB-PSB/ksrates --config config_ksrates.Stylophora.txt
 ```
 
 #### Transposon complement analysis
 
-- TE annotation using EDTA
+- TE annotation using EDTA2
 
 ```bash
-## TODO
+# launched as follows for each species
+perl EDTA.pl --genome ${genome_fasta} --cds ${cds_fasta} --anno 1 --threads 8 --force 1
 ```
 
 - List types of elements and extract types per species, and align to self:
 
 ```bash
-# alternative, aligning to consensus
-mkdir -p results_repeat_analysis_plus/
-for i in ../data/reference/*TE.all.gff3 ; do grep -v "^#" $i ; done | cut -f3 | sort | uniq -c | sort -nr | awk '{ print $2, $1 }' | tr ' ' '\t' > results_repeat_analysis_plus/repeat_counts.txt
-cut -f1 results_repeat_analysis_plus/repeat_counts.txt | tr '_' '\t' | awk '{print $NF "\t" $0}' | sort -k1,1 | cut -f 2- | tr '\t' '_' > results_repeat_analysis_plus/repeat_list.txt
-
-for i in Ocupat Ocuarb Fspp Gasp Spis Pocdam Pocver Adig Amil Acrpal Acrcer Gfas Porlut Actieq Metsen Dialin Exapal Nvec Scocal Dgig Xesp ; do 
+# aligning to consensus (XXX.mod.EDTA.TElib.fa file)
+i="Ocupat"
 rm -rf results_repeat_analysis_plus/te_complement_${i}
 mkdir -p results_repeat_analysis_plus/te_complement_${i}
 grep -v "^#" ../data/reference/${i}.TE.all.gff3 | cut -f3 | sort | uniq -c | sort -nr | awk '{ print $2, $1 }' | tr ' ' '\t' > results_repeat_analysis_plus/te_complement_${i}/repeat_counts.txt
-makeblastdb -dbtype nucl -parse_seqids -in ../data/reference/EDTA_TE_libraries/renamed_genome.${i}.fasta.mod.EDTA.TElib.fa
+
+# create blast db
+makeblastdb -dbtype nucl -parse_seqids -in ${i}.mod.EDTA.TElib.fa # this is the EDTA consensus TE model fasta file
+
+# align each TE family to consensus
 while read ti ; do
 echo "> process $i $ti..."
 bioawk -c gff '$3 == "'${ti}'"' ../data/reference/${i}.TE.all.gff3 | bedtools getfasta -bed - -fi ../data/reference/${i}_gDNA.fasta | bioawk -c fastx '{print ">'${i}.${ti}.'"NR" "$1"\n"$2 }' > results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.fasta
-blastn -db ../data/reference/EDTA_TE_libraries/renamed_genome.${i}.fasta.mod.EDTA.TElib.fa -query results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.fasta -out results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.blast_to_fams.csv -num_threads 20  -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovhsp qseq sseq"  -max_target_seqs 10
+blastn -db ${i}.mod.EDTA.TElib.fa -query results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.fasta -out results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.blast_to_fams.csv -num_threads 20  -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovhsp qseq sseq"  -max_target_seqs 10
 gzip results_repeat_analysis_plus/te_complement_${i}/tes.${i}.${ti}.blast_to_fams.csv
 done < <(cut -f1 results_repeat_analysis_plus/te_complement_${i}/repeat_counts.txt)
-done 
 ```
 
 - Calculate Kimura distance from alignments, plot distributions:
@@ -618,10 +494,27 @@ All the following commands and scripts are to be run from the `results_scatlas` 
 
 #### Mapping scRNAseq to corals
 
-Using Cellranger 6.1.1.
+- Expand gene models to include 3' peaks:
 
 ```bash
-## TODO
+# Start by mapping 2nd reads to genome:
+mkdir -p annotate_3p
+# for Amil:
+bash ../scripts/qsub_peaks3p.sh Amil   ../data/reference/Amil_gDNA.fasta   ../data/reference/Amil_long.annot.gtf   mapping/list_Amil_10XscRNAseq.txt   annotate_3p/ 12
+bash ../scripts/qsub_peaks3p.sh Ocupat ../data/reference/Ocupat_gDNA.fasta ../data/reference/Ocupat_long.annot.gtf mapping/list_Ocupat_10XscRNAseq.txt annotate_3p/ 12
+# for Spis: not necessary, we'll reuse expanded regions from Levy et al 2021
+
+# Second, expand regions to include such peaks
+Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Amil_long.annot.gtf   -p annotate_3p/pool_Amil_peaks_3p.broadPeak   -o annotate_3p/reannotate_Amil_genes.gtf   -m 5000 -a -r Amil   -q 1e-3
+Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Ocupat_long.annot.gtf -p annotate_3p/pool_Ocupat_peaks_3p.broadPeak -o annotate_3p/reannotate_Ocupat_genes.gtf -m 5000 -a -r Ocupat -q 1e-3
+```
+
+- Map using Cellranger 6.1.1.
+
+```bash
+bash ../scripts/qsub_cellranger-00-master.sh Amil   ../data/reference/Amil_gDNA.fasta   annotate_3p/reannotate_Amil_genes.gtf   mapping/list_Amil_10XscRNAseq.txt   mapping/ mapping/ 24
+bash ../scripts/qsub_cellranger-00-master.sh Ocupat ../data/reference/Ocupat_gDNA.fasta annotate_3p/reannotate_Ocupat_genes.gtf mapping/list_Ocupat_10XscRNAseq.txt mapping/ mapping/ 8
+bash ../scripts/qsub_cellranger-00-master.sh Spis   ../data/reference/Spis_gDNA.fasta   annotate_3p/reannotate_Spis_genes.legacy.gtf mapping/list_Spis_10XscRNAseq.txt   mapping/ mapping/ 24
 ```
 
 #### Cluster and annotate scRNAseq atlases
@@ -737,7 +630,7 @@ done
 # blast alignments (first is reference)
 for si in Ocupat Ocuarb Spis Amil Nvec Xesp ; do
 for sj in Ocupat Ocuarb Spis Amil Nvec Xesp ; do
-bash qsub_blast.sh results_blast/dbs/${si}.fasta results_blast/dbs/${sj}.fasta  results_blast/samap.${si}-${sj}.blast.csv blastp
+bash ../scripts/qsub_blast.sh results_blast/dbs/${si}.fasta results_blast/dbs/${sj}.fasta  results_blast/samap.${si}-${sj}.blast.csv blastp
 done
 done
 # copy in samap format
