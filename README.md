@@ -523,16 +523,53 @@ The following scripts describe the process of cell clustering and cell type anno
 
 - Initialise clustering solution with a first iteration (`*prefilt/`):
 
-```bash
-# normalise data for marker selection based on the SCT procedure
-# also, discard doublets based on CT (and, for Ocupat, aided by doubletfinder)
-Rscript s03_seurat_cells_normalise_2024-04-17-Ocupat.R    # for Ocupat, Amil and Spis
-Rscript s03_seurat_cells_normalise_2024-04-17-Outgroups.R # for Xesp and Nvec
-# create initial metacell solution and cluster
-Rscript s04_seurat_cells_process_2024-04-17.R
-```
+```R
+# 0. Object `seu` is a Seurat object with batches split into assays, for each species
 
-- Annotate and reorder clusters from the first iteration manually, and save an annotation file for this second iteration to `*filt/`.
+# 1. normalise data for marker selection based on the SCT procedure
+seu = Seurat::SCTransform(
+	seu,
+	do.scale = TRUE, 
+	do.center = TRUE,
+	return.only.var.genes = TRUE,
+	verbose = TRUE
+)
+
+# 2. Harmony integration of batches
+# initial PCA
+seu = Seurat::RunPCA(seu, verbose = FALSE, npcs = 100, reduction.name = "pca")
+# prep markers
+seu = Seurat::PrepSCTFindMarkers(seu, verbose = FALSE)
+# integration with Harmony (only if >1 batch present)
+seu = Seurat::IntegrateLayers(
+	object = seu,
+	method = HarmonyIntegration,
+	orig.reduction = "pca",
+	new.reduction = "pca_integrated_harmony",
+	normalization.method = "SCT",
+	k.weight = 50,
+	verbose = TRUE)
+
+
+# 3. find leiden clusters on integrated PCs 
+# select num PCs to use for clustering
+seu_num_pcs_v = find_pca_elbow(seu@reductions$pca@stdev)
+seu_num_pcs = seu_num_pcs_v["First derivative"]
+# find leiden clusters
+seu = Seurat::FindNeighbors(seu, dims = 1:seu_num_pcs, verbose = FALSE, reduction = "pca_integrated_harmony", return.neighbor = FALSE)
+seu = Seurat::FindClusters(seu, resolution = 4, cluster.name = "leiden", verbose = TRUE, algorithm = 4, method = "igraph")
+
+# 4. find metacell clusters on integrated dataset
+pca_mat = t(Seurat::Embeddings(seu[["pca_integrated_harmony"]]))
+pca_var_features = rownames(pca_mat)[1:seu_num_pcs]
+seu_mcs_pca_v = sca_balanced_coclustering_headless(
+	mat = pca_mat,
+	top_K = 100,
+	cgraph_K = 200,
+	variable_features = pca_var_features)
+seu@meta.data$metacell = NA
+seu@meta.data$metacell = seu_mcs_pca_v [ rownames(seu@meta.data) ]
+```
 
 - Analyse the atlas after manual curation of clusters (markers per cell type, enrichments, cytotrace, etc); goes to `filt/` folders:
 
