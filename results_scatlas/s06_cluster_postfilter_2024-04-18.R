@@ -30,7 +30,7 @@ for (spi in sps_list) {
 	}
 
 	# output
-	out_fn = sprintf("results_metacell_%s_filt2/", spi)
+	out_fn = sprintf("results_metacell_%s_filt/", spi)
 	dir.create(out_fn, showWarnings = FALSE)
 
 	## Load gene annotations ##
