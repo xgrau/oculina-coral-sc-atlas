@@ -26,7 +26,7 @@
 
 ## Introduction
 
-This repository contains code and essential data to reproduce the analysis of the manuscript *The evolution of facultative symbiosis in stony corals* (Levy, Grau-Bové et al. 2025, submitted), where we present single-cell transcriptomic atlases of the facultatively symbiotic coral *Oculina patagonica* and two additional obligate symbiotic corals, *Stylophora pistillata* and *Acropora millepora*.
+This repository contains code and essential data to reproduce the analysis of the manuscript ***The evolution of facultative symbiosis in stony corals*** (Levy, Grau-Bové et al. 2025, submitted), where we present **single-cell transcriptomic atlases of *Oculina patagonica*** (a facultatively symbiotic coral), ***Stylophora pistillata* and *Acropora millepora*** (obligate symbiotic corals).
 
 ![Pictures of *Oculina patagonica*, *Stylophora pistillata* and *Acropora millepora*](data/corals_image.png)
 
