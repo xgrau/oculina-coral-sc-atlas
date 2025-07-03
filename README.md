@@ -1,11 +1,10 @@
 # Comparative genomics and single-cell transcriptomics of *Oculina patagonica* <!-- omit from toc -->
 
 - [Introduction](#introduction)
-- [Accessing the data](#accessing-the-data)
+	- [What you'll find in this repository](#what-youll-find-in-this-repository)
+	- [Accessing the raw expression data](#accessing-the-raw-expression-data)
+	- [Interactive database to explore the expression atlases](#interactive-database-to-explore-the-expression-atlases)
 - [Reproducing the analyses](#reproducing-the-analyses)
-	- [Genome annotation](#genome-annotation)
-		- [*de novo* gene annotation of *Oculina patagonica*](#de-novo-gene-annotation-of-oculina-patagonica)
-		- [K-mer frequency plots of *Oculina* assemblies](#k-mer-frequency-plots-of-oculina-assemblies)
 	- [Comparative genomic analyses](#comparative-genomic-analyses)
 		- [Orthology analyses](#orthology-analyses)
 		- [Gene family annotation](#gene-family-annotation)
@@ -18,21 +17,27 @@
 		- [Ks rate analysis of whole-genome duplications](#ks-rate-analysis-of-whole-genome-duplications)
 		- [Transposon complement analysis](#transposon-complement-analysis)
 	- [Single-cell transcriptomic atlas analyses](#single-cell-transcriptomic-atlas-analyses)
-		- [Mapping scRNAseq to corals](#mapping-scrnaseq-to-corals)
+		- [Map scRNAseq data](#map-scrnaseq-data)
 		- [Cluster and annotate scRNAseq atlases](#cluster-and-annotate-scrnaseq-atlases)
-	- [Cross-species single-cell transcriptome analyses](#cross-species-single-cell-transcriptome-analyses)
-		- [Cell type trees across species, using ICC orthologs](#cell-type-trees-across-species-using-icc-orthologs)
-		- [Use SAMap to align cell types across species](#use-samap-to-align-cell-types-across-species)
+		- [Downstream analyses: differential gene expression, gene modules, QC](#downstream-analyses-differential-gene-expression-gene-modules-qc)
+		- [Downstream analyses: evolution of cell type-specific expression programmes](#downstream-analyses-evolution-of-cell-type-specific-expression-programmes)
+		- [Cross-species comparisons: cell type trees using *ICC* orthologs](#cross-species-comparisons-cell-type-trees-using-icc-orthologs)
+		- [Cross-species comparisons: *SAMap* for cell type alignment across species](#cross-species-comparisons-samap-for-cell-type-alignment-across-species)
 
 ## Introduction
 
-Folder organisation:
+This repository contains code and essential data to reproduce the analysis of the manuscript *The evolution of facultative symbiosis in stony corals* (Levy, Grau-Bové et al. 2025, submitted), where we present single-cell transcriptomic atlases of the facultatively symbiotic coral *Oculina patagonica* and two additional obligate symbiotic corals, *Stylophora pistillata* and *Acropora millepora*.
 
-- `data/`: reference genomes, sequencing data, scRNA-seq data.
-- `results_scatlas/`: scRNA-seq atlases.
-- `results_annotation/`: genome annotation and comparative analyses.
+### What you'll find in this repository
 
-Each species is referred to with a short acronym all through this project. For the three scleractinian coral single-cell atlases here produced, we use:
+This repository is organised as follows:
+
+- `data/`: reference genomes and genome annotations used in the project.
+- `results_annotation/`: gene annotation, phylogenetics, and comparative genomic analyses (orthology, tandem duplications, synteny...).
+- `results_scatlas/`: scRNA-seq atlases, including differential gene expression analyses, gene modules, etc.
+- `results_csps/`: cross-species atlas analyses (*SAMap*).
+
+Each species is referred to with a short acronym all through this project (in all scripts, file and folder names, etc.). For the three scleractinian coral single-cell atlases here produced, we use these:
 
 - `Ocupat` for *Oculina patagonica*
 - `Amil` for *Acropora millepora*
@@ -44,48 +49,23 @@ We have compared these three corals to other species, namely:
 - `Xesp` for *Xenia* sp., an octocorallian soft coral
 - `Nvec` for *Nematostella vectensis*, a sea anemone
 
-The complete list of species used in the comparative transcriptomic and genomic analyses, with the relevant data sources, can be found [here](data/taxon_sampling.md).
+The complete list of species and acronyms used in the comparative transcriptomic and genomic analyses, with the relevant data sources, can be found in the [`data/taxon_sampling.md`](data/taxon_sampling.md) table.
 
-## Accessing the data
+### Accessing the raw expression data
 
-We provide the following [raw data](results_scatlas/mapping/scdb_seurat) for each coral species:
+We provide the following expression data for each coral species, which can be found in the `results_scatlas/` directory, under the species-specific directories (e.g. [`results_scatlas/results_metacell_Ocupat_filt/`](results_scatlas/results_metacell_Ocupat_filt/)):
 
-- Seurat objects
-- Metacell annotation tables
-- Cell type annotation tables
-- Footprints
+- Seurat objects with the raw UMI and corrected counts, as well as cell-level metadata, e.g. [for *O. patagonica*](results_scatlas/results_metacell_Ocupat_filt/dat.Ocupat.seurat_final.rds).
+- Cell type [annotation tables](results_scatlas/results_metacell_Ocupat_filt/annot.Ocupat.leiden.csv), [metacell-level annotation tables](results_scatlas/results_metacell_Ocupat_filt/annot.Ocupat.mcs.csv), [and cell-level metadata tables](results_scatlas/results_metacell_Ocupat_filt/dat.Ocupat.cell_metadata.csv).
+- Gene expression data summarised at the cell type and metacell level, expressed as footprints (normalised fold-changes), UMI counts, UMI fraction (UMI/10000), and % of cells where a gene is detected.
 
 If you have any queries, feel free to let me know in the [Issues section](https://github.com/xgrau/oculina-coral-sc-atlas/issues).
 
+### Interactive database to explore the expression atlases
+
+If you don't feel like downloading and probing the data yourself, you can also browse the gene expression atlases for *O. patagonica*, *S. pistillata* and *A. millepora* in our **interactive database**: **https://sebelab.crg.eu/multicoral-sc-atlas/**.
+
 ## Reproducing the analyses
-
-### Genome annotation
-
-#### *de novo* gene annotation of *Oculina patagonica*
-
-```bash
-## TODO ##
-```
-
-#### K-mer frequency plots of *Oculina* assemblies
-
-We use [`KAT`](https://kat.readthedocs.io/en/latest/walkthrough.html#heterozygous-genomes) to create k-mer frequency plots for the raw and processed assemblies.
-
-To run from the `data` folder.
-
-```bash
-# cdir
-cd sequencing_nanopore_Oculina
-
-# processed assembly
-kat comp -t 12 concatenated_nanopore_reads.fastq.gz ../reference/Ocupat_gDNA.fasta -o kat_comp_raw --output_type=pdf --output_hists -v
-kat plot spectra-cn kat_comp-main.mx --x_max 100 --output_type=pdf -o kat_comp-main.spectra.pdf
-kat plot density kat_comp-main.mx --x_max 100 --output_type=pdf -o kat_comp-main.density.pdf
-# raw assembly
-kat comp -t 36 concatenated_nanopore_reads.fastq.gz intermediate_assemblies_flye01/assembly.fasta -o kat_comp_raw --output_type=pdf --output_hists -v
-kat plot spectra-cn kat_comp_raw-main.mx --x_max 100 --output_type=pdf -o kat_comp_raw-main.spectra.pdf
-kat plot density kat_comp_raw-main.mx --x_max 100 --output_type=pdf -o kat_comp_raw-main.density.pdf
-```
 
 ### Comparative genomic analyses
 
@@ -492,7 +472,7 @@ Rscript s51_kimura_from_tes_2024-11-20.R
 
 All the following commands and scripts are to be run from the `results_scatlas` folder, unless otherwise specified.
 
-#### Mapping scRNAseq to corals
+#### Map scRNAseq data
 
 - Expand gene models to include 3' peaks:
 
@@ -510,7 +490,7 @@ Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Amil_long.annot.gtf   -p
 Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Ocupat_long.annot.gtf -p annotate_3p/pool_Ocupat_peaks_3p.broadPeak -o annotate_3p/reannotate_Ocupat_genes.gtf -m 5000 -a -r Ocupat -q 1e-3
 ```
 
-- Map using Cellranger 6.1.1.
+- Map transcriptomes to genomes using Cellranger 6.1.1.
 
 ```bash
 # files mapping/list_Amil_10XscRNAseq.txt and mapping/list_Ocupat_10XscRNAseq.txt contain paths to FASTQ files (not included)
@@ -584,6 +564,8 @@ seu@meta.data$metacell = seu_mcs_pca_v [ rownames(seu@meta.data) ]
 Rscript s06_cluster_postfilter_2024-04-18.R
 ```
 
+#### Downstream analyses: differential gene expression, gene modules, QC
+
 - Differential gene expression analyses between pairs of cell types (selected):
 
 ```bash
@@ -613,6 +595,8 @@ Rscript s30_transfer_alga_positive_cells_symbionts_2024-06-26.R # based on MARS 
 Rscript s40_qc_tables_per_cluster_2024-10-18.R
 ```
 
+#### Downstream analyses: evolution of cell type-specific expression programmes
+
 - Evolution of cell type-specific gene expression programmes:
 
 ```bash
@@ -633,11 +617,7 @@ python ../scripts/possvm_reconstruction.py -tree results_ct_evolution/small_tree
 Rscript s51_clean_ct_evol_process_dollo_2024-10-24.R
 ```
 
-### Cross-species single-cell transcriptome analyses
-
-Compare cell types across species.
-
-#### Cell type trees across species, using ICC orthologs
+#### Cross-species comparisons: cell type trees using *ICC* orthologs
 
 To run from `results_scatlas/` folder.
 
@@ -654,7 +634,7 @@ Rscript s09_csps_similarity_2024-04-29.R      # csps similarity plots and shared
 Rscript s10_cell_type_trees_2024-06-21.R      # cell type trees (UPGMA, PCA-based...)
 ```
 
-#### Use SAMap to align cell types across species
+#### Cross-species comparisons: *SAMap* for cell type alignment across species
 
 To run from `results_csps/` folder.
 
