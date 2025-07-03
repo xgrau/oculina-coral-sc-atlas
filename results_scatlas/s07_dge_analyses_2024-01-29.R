@@ -118,27 +118,6 @@ for (spi in sps_list) {
 	names(go_annot) = oga_gtv [ names(go_annot)  ]
 	names(pf_annot) = oga_gtv [ names(pf_annot)  ]
 
-	# load KO info in species of interest
-	keg_ll = read.table(sprintf("results_pathways/kegg_map_to_%s.csv",  spi), header = TRUE, sep = "\t")
-	
-	# load KO-to-KEGG pathway mappings
-	kg2name_d = read.table("../data/reference/kegg_pathway2name.tsv", sep = "\t", header = FALSE, col.names = c("kegg", "kegg_name"))
-	kg2name_v = dic_from_vecs(kg2name_d$kegg, kg2name_d$kegg_name)
-
-	ko2kg_l = gsa_enrichment_load_pfam_list("../data/reference/kegg_pathway2ko.tsv", architecture_sep = ",")
-	ko2kg_d = data.frame(
-		kegg = unlist(sapply(1:length(ko2kg_l), function(nn) rep(names(ko2kg_l)[nn], length(ko2kg_l[[nn]])))),
-		ko = unlist(ko2kg_l))
-	keg_ld = merge(keg_ll[,c("gene","name","ko")], ko2kg_d, by.x = "ko", by.y = "ko", all.x = TRUE, all.y = FALSE)
-	keg_ld = unique(keg_ld)
-	keg_ld = keg_ld [ order(keg_ld$gene, keg_ld$kegg, keg_ld$ko), ]
-	keg_ld$kegg_name = sprintf("%s: %s", keg_ld$kegg, stringr::str_trunc(kg2name_v[keg_ld$kegg], 40))
-	keg_ld = keg_ld [ !is.na(keg_ld$kegg), ]
-	keg_ldl = aggregate(kegg_name ~ gene, data = keg_ld, function(vv) { paste(vv, collapse = ",") })
-	write.table(keg_ldl, sprintf("results_pathways/kegg_gene_to_map_%s.csv", spi), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
-	keg_lll = gsa_enrichment_load_pfam_list(sprintf("results_pathways/kegg_gene_to_map_%s.csv", spi), architecture_sep = ",")
-	names(keg_lll) = gg_v [ names(keg_lll) ]
-	
 	# gene names from spis, for reference
 	if (spi_w != "Spis") {
 		og_pairs = clean_og_pairs(
@@ -280,25 +259,6 @@ for (spi in sps_list) {
 		message(sprintf("functional enrichments | %s G1, n=%i genes", dei, length(mki_genes)))
 		if (length(mki_genes)>0) {
 			
-			# # KEGG enrichment
-			# kegg_enrichment = gsa_enrichment_hypergeometric_v2(
-			# 	annotation = keg_lll,
-			# 	genes_fg = mki_genes,
-			# 	genes_bg = gg_v[rownames(seu)] [ gg_v[rownames(seu)] %in% names(keg_lll) ],
-			# 	out_fn = sprintf("results_metacell_%s_filt/tests_dge_nov24/dge.%s.%s.G1.kegg.csv", spi, spi, make.names(dei)),
-			# 	name_fg = "G1"
-			# )
-			# keg_ld_i = keg_ld [ keg_ld$gene %in% mki_genes, ]
-			# keg_ld_i$kegg_name = factor(keg_ld_i$kegg_name, levels = kegg_enrichment[[1]]$annot)
-			# keg_ld_i = keg_ld_i [ order(keg_ld_i$kegg_name, keg_ld_i$ko, keg_ld_i$gene), ]
-			
-			# # KEGG enrichment pvalue
-			# kegg_enrichment_pv_v = dic_from_vecs(kegg_enrichment[[1]]$annot, kegg_enrichment[[1]]$pval_adj)			
-			# kegg_enrichment_fg_v = dic_from_vecs(kegg_enrichment[[1]]$annot, kegg_enrichment[[1]]$freq_in_fg)	
-			# keg_ld_i$kegg_pvalue = kegg_enrichment_pv_v[keg_ld_i$kegg_name]		
-			# keg_ld_i$kegg_n_in_fg = kegg_enrichment_fg_v[keg_ld_i$kegg_name]		
-			# write.table(keg_ld_i, sprintf("results_metacell_%s_filt/tests_dge_nov24/dge.%s.%s.G1.keggsum.csv", spi, spi, make.names(dei)), sep = "\t", quote = FALSE, row.names = FALSE)
-			
 			# test domain enrichment
 			pf_enrichment_l = gsa_enrichment_hypergeometric_v2(
 				annotation = pf_annot,
@@ -344,26 +304,6 @@ for (spi in sps_list) {
 		message(sprintf("functional enrichments | %s G2, n=%i genes", dei, length(mki_genes)))
 		if (length(mki_genes)>0) {
 			
-			# # KEGG enrichment
-			# kegg_enrichment = gsa_enrichment_hypergeometric_v2(
-			# 	annotation = keg_lll,
-			# 	genes_fg = mki_genes,
-			# 	genes_bg = gg_v[rownames(seu)] [ gg_v[rownames(seu)] %in% names(keg_lll) ],
-			# 	out_fn = sprintf("results_metacell_%s_filt/tests_dge_nov24/dge.%s.%s.G2.kegg.csv", spi, spi, make.names(dei)),
-			# 	name_fg = "G2"
-			# )
-			# keg_ld_i = keg_ld [ keg_ld$gene %in% mki_genes, ]
-			# keg_ld_i$kegg_name = factor(keg_ld_i$kegg_name, levels = kegg_enrichment[[1]]$annot)
-			# keg_ld_i = keg_ld_i [ order(keg_ld_i$kegg_name, keg_ld_i$ko, keg_ld_i$gene), ]
-			
-			# # KEGG enrichment pvalue
-			# kegg_enrichment_pv_v = dic_from_vecs(kegg_enrichment[[1]]$annot, kegg_enrichment[[1]]$pval_adj)			
-			# kegg_enrichment_fg_v = dic_from_vecs(kegg_enrichment[[1]]$annot, kegg_enrichment[[1]]$freq_in_fg)	
-			# keg_ld_i$kegg_pvalue = kegg_enrichment_pv_v[keg_ld_i$kegg_name]		
-			# keg_ld_i$kegg_n_in_fg = kegg_enrichment_fg_v[keg_ld_i$kegg_name]		
-			# write.table(keg_ld_i, sprintf("results_metacell_%s_filt/tests_dge_nov24/dge.%s.%s.G2.keggsum.csv", spi, spi, make.names(dei)), sep = "\t", quote = FALSE, row.names = FALSE)
-			
-
 			# test domain enrichment
 			pf_enrichment_l = gsa_enrichment_hypergeometric_v2(
 				annotation = pf_annot,
