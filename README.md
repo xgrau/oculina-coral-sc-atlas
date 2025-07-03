@@ -499,12 +499,13 @@ All the following commands and scripts are to be run from the `results_scatlas` 
 ```bash
 # Start by mapping 2nd reads to genome:
 mkdir -p annotate_3p
-# for Amil:
+# files mapping/list_Amil_10XscRNAseq.txt and mapping/list_Ocupat_10XscRNAseq.txt contain paths to FASTQ files (not included)
 bash ../scripts/qsub_peaks3p.sh Amil   ../data/reference/Amil_gDNA.fasta   ../data/reference/Amil_long.annot.gtf   mapping/list_Amil_10XscRNAseq.txt   annotate_3p/ 12
 bash ../scripts/qsub_peaks3p.sh Ocupat ../data/reference/Ocupat_gDNA.fasta ../data/reference/Ocupat_long.annot.gtf mapping/list_Ocupat_10XscRNAseq.txt annotate_3p/ 12
 # for Spis: not necessary, we'll reuse expanded regions from Levy et al 2021
 
 # Second, expand regions to include such peaks
+# files mapping/list_Amil_10XscRNAseq.txt and mapping/list_Ocupat_10XscRNAseq.txt contain paths to FASTQ files (not included)
 Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Amil_long.annot.gtf   -p annotate_3p/pool_Amil_peaks_3p.broadPeak   -o annotate_3p/reannotate_Amil_genes.gtf   -m 5000 -a -r Amil   -q 1e-3
 Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Ocupat_long.annot.gtf -p annotate_3p/pool_Ocupat_peaks_3p.broadPeak -o annotate_3p/reannotate_Ocupat_genes.gtf -m 5000 -a -r Ocupat -q 1e-3
 ```
@@ -512,16 +513,17 @@ Rscript ../scripts/qsub_extend3p.R -g ../data/reference/Ocupat_long.annot.gtf -p
 - Map using Cellranger 6.1.1.
 
 ```bash
+# files mapping/list_Amil_10XscRNAseq.txt and mapping/list_Ocupat_10XscRNAseq.txt contain paths to FASTQ files (not included)
 bash ../scripts/qsub_cellranger-00-master.sh Amil   ../data/reference/Amil_gDNA.fasta   annotate_3p/reannotate_Amil_genes.gtf   mapping/list_Amil_10XscRNAseq.txt   mapping/ mapping/ 24
-bash ../scripts/qsub_cellranger-00-master.sh Ocupat ../data/reference/Ocupat_gDNA.fasta annotate_3p/reannotate_Ocupat_genes.gtf mapping/list_Ocupat_10XscRNAseq.txt mapping/ mapping/ 8
+bash ../scripts/qsub_cellranger-00-master.sh Ocupat ../data/reference/Ocupat_gDNA.fasta annotate_3p/reannotate_Ocupat_genes.gtf mapping/list_Ocupat_10XscRNAseq.txt mapping/ mapping/ 24
 bash ../scripts/qsub_cellranger-00-master.sh Spis   ../data/reference/Spis_gDNA.fasta   annotate_3p/reannotate_Spis_genes.legacy.gtf mapping/list_Spis_10XscRNAseq.txt   mapping/ mapping/ 24
 ```
 
 #### Cluster and annotate scRNAseq atlases
 
-The following scripts describe the process of cell clustering and cell type annotation for each species (`Ocupat`, `Spin`, `Amil`; and also the outgroups `Xesp`, `Ocuarb` and `Nvec`). For each species, results are organised a preliminary folder (denoted as `results_metacell_[SPSID]_prefilt/`) and a final, filtered folder (denoted as `results_metacell_[SPSID]_filt/`).
+The following scripts describe the process of cell clustering and cell type annotation for each species (`Ocupat`, `Spin`, `Amil`; and also the outgroups `Xesp`, `Ocuarb` and `Nvec`). For each species, normalised and annotated Seurat objects are provided (denoted as `results_metacell_[SPSID]_filt/`).
 
-- Initialise clustering solution with a first iteration (`*prefilt/`):
+- Normalise data, integrate batches (if necessary) and obtain clusters (leiden and metacells). The next analyses require the output from these steps and a cluster annotation table (e.g. see [here for the *O. patagonica* table](results_scatlas/results_metacell_Ocupat_filt/annot.Ocupat.leiden.csv)).
 
 ```R
 # 0. Object `seu` is a Seurat object with batches split into assays, for each species
@@ -569,11 +571,16 @@ seu_mcs_pca_v = sca_balanced_coclustering_headless(
 	variable_features = pca_var_features)
 seu@meta.data$metacell = NA
 seu@meta.data$metacell = seu_mcs_pca_v [ rownames(seu@meta.data) ]
+
+# save `seu` output and annotate the leiden/metacell table, to be stored in the `filt/` folder.
 ```
 
-- Analyse the atlas after manual curation of clusters (markers per cell type, enrichments, cytotrace, etc); goes to `filt/` folders:
+- Analyse the atlas after manual curation of clusters (markers per cell type, enrichments, cytotrace, etc); output goes to `filt/` folders:
 
 ```bash
+# required inputs are:
+# * the cluster annotation table (e.g. results_metacell_Ocupat_filt/annot.Ocupat.leiden.csv), and 
+# * the Seurat object (e.g. results_metacell_Ocupat_filt/dat.Ocupat.seurat_final.rds)
 Rscript s06_cluster_postfilter_2024-04-18.R
 ```
 
