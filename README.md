@@ -590,12 +590,6 @@ Rscript s06_cluster_postfilter_2024-04-18.R
 Rscript s07_dge_analyses_2024-01-29.R
 ```
 
-- TF combinations defining each cell type:
-
-```bash
-Rscript s13_TF_combinations_2024-05-09.R
-```
-
 - Identify gene modules, annotate them and compare their contents across species, using `WGCNA` at the metacell level:
 
 ```bash
@@ -603,8 +597,6 @@ Rscript s13_TF_combinations_2024-05-09.R
 Rscript s20_gene_modules_2024-04-29.R
 # annotate them and run functional enrichment analyses
 Rscript s21_gene_modules_annot_2024-04-29.R
-# compare module contents across species, run trees
-Rscript s22_gene_modules_comparisons_2024-06-05.R
 # dedicated analyses for the modules in host cells (select manually form eigengenes plots)
 Rscript s23_gene_modules_host_cells_2024-06-10.R
 ```
@@ -613,7 +605,12 @@ Rscript s23_gene_modules_host_cells_2024-06-10.R
 
 ```bash
 Rscript s30_transfer_alga_positive_cells_symbionts_2024-06-26.R # based on MARS experiments
-Rscript s31_metacell_symbiont_counts_2024-05-09.R # based on 10x data
+```
+
+- Quality control statistics at the metacell level
+
+```bash
+Rscript s40_qc_tables_per_cluster_2024-10-18.R
 ```
 
 - Evolution of cell type-specific gene expression programmes:
