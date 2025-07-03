@@ -31,7 +31,7 @@ mkdir -p ${oum}
 # create cellranger index
 # this job will run first, and the mapping jobs will remain on hold until this is ready
 echo "cellranger | mkref ${sid} start"
-bash qsub_cellranger-01-db.sh \
+bash ../scripts/qsub_cellranger-01-db.sh \
 		${sid} \
 		${fas} \
 		${gtf} \
@@ -44,7 +44,7 @@ echo "cellranger | mapping 10k cells, ${sid} launch jobs and put on hold"
 i=0
 while read fqf ; do
 	let i=i+1
-	bash qsub_cellranger-02-run.sh \
+	bash ../scripts/qsub_cellranger-02-run.sh \
 			${sid} \
 			${our}/gdb_${sid} \
 			${fqf} \
