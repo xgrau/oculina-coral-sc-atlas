@@ -14,7 +14,7 @@ comp_list = list(
 	"gastrodermis_alga_hosting_symbio" = list(Ocupat = "gastrodermis_alga_hosting", Ocuarb = "gastrodermis_alga_hosting", Spin = "gastrodermis_alga_hosting", Amil = "gastrodermis_alga_hosting"),
 	"gastrodermis" = list(Ocupat = "gastrodermis", Ocuarb = "gastrodermis", Spin = "gastrodermis", Amil = c("gastrodermis_1","gastrodermis_2"), Nvec = "gastrodermis", Xesp = "gastrodermis"),
 	"glanddigestive" = list(Ocupat = "gland_3", Ocuarb = "gland_3", Spin = "gland_2", Amil = "gland_4", Nvec = "gland_17"),
-	"glandmucin" = list(Ocupat = "gland_8", Ocuarb = "gland_8", Spin = "gland_3", Amil = "gland_2", Nvec = "gland_4"),
+	"glandmucinalt" = list(Ocupat = "gland_8", Ocuarb = "gland_8", Spin = "gland_3", Amil = "gland_2", Nvec = "gland_4"),
 	"digestfil" = list(Ocupat = "digestive_filaments", Ocuarb = "digestive_filaments", Spin = "digestive_filaments", Amil = "digestive_filaments", Nvec = "digestive_filaments")
 )
 
