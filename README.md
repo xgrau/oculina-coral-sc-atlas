@@ -23,6 +23,7 @@
 		- [Downstream analyses: evolution of cell type-specific expression programmes](#downstream-analyses-evolution-of-cell-type-specific-expression-programmes)
 		- [Cross-species comparisons: cell type trees using *ICC* orthologs](#cross-species-comparisons-cell-type-trees-using-icc-orthologs)
 		- [Cross-species comparisons: *SAMap* for cell type alignment across species](#cross-species-comparisons-samap-for-cell-type-alignment-across-species)
+- [Coda](#coda)
 
 ## Introduction
 
@@ -709,7 +710,9 @@ python s35_samap_objects_all2all_2024-07-03.py
 python s36_samap_postalignment_all2all_2024-07-03.py
 ```
 
-The end!
+## Coda
+
+*Stylophora pistillata* as ASCII art:
 
 ```python
                 ⣀⡀           
@@ -728,3 +731,5 @@ The end!
               ⣿⣿               
 ~~~~~~~~~~~~~^^^^^~~~~~~~~~~~~~~~~            
 ```
+
+The end!
