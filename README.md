@@ -66,8 +66,6 @@ We provide the following expression data for each coral species, which can be fo
 - Cell type [annotation tables](results_scatlas/results_metacell_Ocupat_filt/annot.Ocupat.leiden.csv), [metacell-level annotation tables](results_scatlas/results_metacell_Ocupat_filt/annot.Ocupat.mcs.csv), [and cell-level metadata tables](results_scatlas/results_metacell_Ocupat_filt/dat.Ocupat.cell_metadata.csv).
 - Gene expression data summarised at the cell type and metacell level, expressed as footprints (normalised fold-changes), UMI counts, UMI fraction (UMI/10000), and % of cells where a gene is detected.
 
-If you have any queries, feel free to let me know in the [Issues section](https://github.com/xgrau/oculina-coral-sc-atlas/issues).
-
 ### Interactive database to explore the expression atlases
 
 If you don't feel like downloading and probing the data yourself, you can also browse the gene expression atlases for *O. patagonica*, *S. pistillata* and *A. millepora* in our **interactive database**: **https://sebelab.crg.eu/multicoral-sc-atlas/**.
